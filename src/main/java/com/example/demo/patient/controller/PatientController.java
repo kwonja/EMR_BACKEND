@@ -1,10 +1,12 @@
 package com.example.demo.patient.controller;
 
 import com.example.demo.patient.dto.PatientCreateRequest;
-import com.example.demo.patient.dto.PatientCreateResponse;
+import com.example.demo.patient.dto.PatientResponse;
+import com.example.demo.patient.dto.PatientUpdateRequest;
 import com.example.demo.patient.service.PatientService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,19 +25,27 @@ public class PatientController {
     }
 
     @PostMapping
-    public PatientCreateResponse create(
+    public PatientResponse create(
             @RequestBody PatientCreateRequest request
     ) {
         return patientService.create(request);
     }
 
     @GetMapping("/{id}")
-    public PatientCreateResponse findById(@PathVariable Long id) {
+    public PatientResponse findById(@PathVariable Long id) {
         return patientService.findById(id);
     }
 
     @GetMapping
-    public List<PatientCreateResponse> findAll() {
+    public List<PatientResponse> findAll() {
         return patientService.findAll();
+    }
+
+    @PatchMapping("/{id}")
+    public PatientResponse update(
+            @PathVariable Long id,
+            @RequestBody PatientUpdateRequest request
+    ) {
+        return patientService.update(id, request);
     }
 }

@@ -5,7 +5,7 @@ import com.example.demo.patient.domain.Patient;
 import java.time.Instant;
 import java.time.LocalDate;
 
-public class PatientCreateResponse {
+public class PatientResponse {
 
     private final Long id;
     private final String patientNumber;
@@ -14,7 +14,7 @@ public class PatientCreateResponse {
     private final String phone;
     private final Instant createdAt;
 
-    public PatientCreateResponse(
+    public PatientResponse(
             Long id,
             String patientNumber,
             String name,
@@ -30,8 +30,8 @@ public class PatientCreateResponse {
         this.createdAt = createdAt;
     }
 
-    public static PatientCreateResponse from(Patient patient) {
-        return new PatientCreateResponse(
+    public static PatientResponse from(Patient patient) {
+        return new PatientResponse(
                 patient.getId(),
                 patient.getPatientNumber(),
                 patient.getName(),

@@ -2,7 +2,8 @@ package com.example.demo.patient.service;
 
 import com.example.demo.patient.domain.Patient;
 import com.example.demo.patient.dto.PatientCreateRequest;
-import com.example.demo.patient.dto.PatientCreateResponse;
+import com.example.demo.patient.dto.PatientResponse;
+import com.example.demo.patient.dto.PatientUpdateRequest;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
 import com.example.demo.patient.repository.PatientRepository;
@@ -21,7 +22,7 @@ public class PatientService {
         this.patientRepository = patientRepository;
     }
 
-    public PatientCreateResponse create(PatientCreateRequest request) {
+    public PatientResponse create(PatientCreateRequest request) {
 
         Patient patient = new Patient(
                 request.getPatientNumber(),
@@ -32,7 +33,7 @@ public class PatientService {
 
         try {
             Patient savedPatient = patientRepository.saveAndFlush(patient);
-            return PatientCreateResponse.from(savedPatient);
+            return PatientResponse.from(savedPatient);
         } catch (DataIntegrityViolationException exception) {
             throw new DuplicatePatientNumberException(
                     request.getPatientNumber()
@@ -40,21 +41,35 @@ public class PatientService {
         }
     }
 
-    public PatientCreateResponse findById(Long id) {
+    public PatientResponse findById(Long id) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new PatientNotFoundException(id));
 
-        return PatientCreateResponse.from(patient);
+        return PatientResponse.from(patient);
     }
 
-    public List<PatientCreateResponse> findAll() {
+    public List<PatientResponse> findAll() {
         List<Patient> patients = patientRepository.findAll();
-        List<PatientCreateResponse> responses = new ArrayList<>();
+        List<PatientResponse> responses = new ArrayList<>();
 
         for (Patient patient : patients) {
-            responses.add(PatientCreateResponse.from(patient));
+            responses.add(PatientResponse.from(patient));
         }
 
         return responses;
+    }
+
+    public PatientResponse update(Long id, PatientUpdateRequest request) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException(id));
+
+        patient.update(
+                request.getName(),
+                request.getBirthDate(),
+                request.getPhone()
+        );
+
+        Patient savedPatient = patientRepository.save(patient);
+        return PatientResponse.from(savedPatient);
     }
 }

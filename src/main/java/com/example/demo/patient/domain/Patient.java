@@ -55,6 +55,20 @@ public class Patient {
     protected Patient() {
     }
 
+    public void update(String name, LocalDate birthDate, String phone) {
+        if (name != null) {
+            this.name = name;
+        }
+
+        if (birthDate != null) {
+            this.birthDate = birthDate;
+        }
+
+        if (phone != null) {
+            this.phone = phone;
+        }
+    }
+
     public Long getId() {
         return id;
     }

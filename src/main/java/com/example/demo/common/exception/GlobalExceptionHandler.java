@@ -1,7 +1,10 @@
 package com.example.demo.common.exception;
 
+import com.example.demo.department.exception.DepartmentNotFoundException;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
+import com.example.demo.staff.exception.InvalidStaffTypeException;
+import com.example.demo.staff.exception.StaffNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +33,48 @@ public class GlobalExceptionHandler {
     ) {
         ErrorResponse response = new ErrorResponse(
                 "PATIENT_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(DepartmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDepartmentNotFound(
+            DepartmentNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "DEPARTMENT_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidStaffTypeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidStaffType(
+            InvalidStaffTypeException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_STAFF_TYPE",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(StaffNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleStaffNotFound(
+            StaffNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "STAFF_NOT_FOUND",
                 exception.getMessage()
         );
 
