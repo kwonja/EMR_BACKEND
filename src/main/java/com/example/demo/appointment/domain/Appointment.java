@@ -2,6 +2,7 @@ package com.example.demo.appointment.domain;
 
 import com.example.demo.department.domain.Department;
 import com.example.demo.patient.domain.Patient;
+import com.example.demo.patientvisit.domain.PatientVisit;
 import com.example.demo.staff.domain.Staff;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -39,6 +41,10 @@ public class Appointment {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "staff_id", nullable = false)
     private Staff staff;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "patient_visit_id", unique = true)
+    private PatientVisit patientVisit;
 
     @Column(name = "scheduled_at", nullable = false)
     private LocalDateTime scheduledAt;
@@ -81,6 +87,10 @@ public class Appointment {
         this.status = Objects.requireNonNull(status);
     }
 
+    public void connectPatientVisit(PatientVisit patientVisit) {
+        this.patientVisit = Objects.requireNonNull(patientVisit);
+    }
+
     public Long getId() {
         return id;
     }
@@ -95,6 +105,10 @@ public class Appointment {
 
     public Staff getStaff() {
         return staff;
+    }
+
+    public PatientVisit getPatientVisit() {
+        return patientVisit;
     }
 
     public LocalDateTime getScheduledAt() {
