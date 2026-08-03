@@ -1,5 +1,8 @@
 package com.example.demo.common.exception;
 
+import com.example.demo.appointment.exception.InvalidAppointmentStaffException;
+import com.example.demo.appointment.exception.AppointmentNotFoundException;
+import com.example.demo.appointment.exception.InvalidAppointmentStatusException;
 import com.example.demo.department.exception.DepartmentNotFoundException;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
@@ -80,6 +83,48 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidAppointmentStaffException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidAppointmentStaff(
+            InvalidAppointmentStaffException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_APPOINTMENT_STAFF",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(AppointmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAppointmentNotFound(
+            AppointmentNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "APPOINTMENT_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidAppointmentStatusException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidAppointmentStatus(
+            InvalidAppointmentStatusException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_APPOINTMENT_STATUS",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 }
