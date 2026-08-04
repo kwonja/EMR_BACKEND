@@ -1,41 +1,29 @@
 package com.example.demo.examination.service;
 
-import com.example.demo.department.domain.Department;
-import com.example.demo.department.exception.DepartmentNotFoundException;
-import com.example.demo.department.repository.DepartmentRepository;
 import com.example.demo.examination.domain.ExaminationRoom;
 import com.example.demo.examination.dto.ExaminationRoomCreateRequest;
 import com.example.demo.examination.dto.ExaminationRoomResponse;
 import com.example.demo.examination.repository.ExaminationRoomRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class ExaminationRoomService {
 
     private final ExaminationRoomRepository examinationRoomRepository;
-    private final DepartmentRepository departmentRepository;
 
     public ExaminationRoomService(
-            ExaminationRoomRepository examinationRoomRepository,
-            DepartmentRepository departmentRepository
+            ExaminationRoomRepository examinationRoomRepository
     ) {
         this.examinationRoomRepository = examinationRoomRepository;
-        this.departmentRepository = departmentRepository;
     }
 
     public ExaminationRoomResponse create(ExaminationRoomCreateRequest request) {
-        Department department = null;
-
-        if (request.getDepartmentId() != null) {
-            department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new DepartmentNotFoundException(
-                            request.getDepartmentId()
-                    ));
-        }
-
         ExaminationRoom examinationRoom = new ExaminationRoom(
-                department,
                 request.getName(),
+                request.getRoomNo(),
                 request.getLocation(),
                 request.getDescription()
         );
@@ -44,5 +32,34 @@ public class ExaminationRoomService {
                 examinationRoomRepository.save(examinationRoom);
 
         return ExaminationRoomResponse.from(savedExaminationRoom);
+    }
+
+    public List<ExaminationRoomResponse> findAll(
+            String location,
+            String roomName,
+            String roomNo
+    ) {
+        List<ExaminationRoom> examinationRooms =
+                examinationRoomRepository.findAllByFilters(
+                        emptyToNull(location),
+                        emptyToNull(roomName),
+                        emptyToNull(roomNo)
+                );
+
+        List<ExaminationRoomResponse> responses = new ArrayList<>();
+
+        for (ExaminationRoom examinationRoom : examinationRooms) {
+            responses.add(ExaminationRoomResponse.from(examinationRoom));
+        }
+
+        return responses;
+    }
+
+    private String emptyToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value;
     }
 }

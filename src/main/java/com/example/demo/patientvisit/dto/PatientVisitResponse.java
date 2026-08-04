@@ -10,6 +10,7 @@ public class PatientVisitResponse {
     private final Long id;
     private final Long patientId;
     private final String patientName;
+    private final Long appointmentId;
     private final Instant arrivedAt;
     private final Instant leftAt;
     private final PatientVisitStatus status;
@@ -18,6 +19,7 @@ public class PatientVisitResponse {
             Long id,
             Long patientId,
             String patientName,
+            Long appointmentId,
             Instant arrivedAt,
             Instant leftAt,
             PatientVisitStatus status
@@ -25,6 +27,7 @@ public class PatientVisitResponse {
         this.id = id;
         this.patientId = patientId;
         this.patientName = patientName;
+        this.appointmentId = appointmentId;
         this.arrivedAt = arrivedAt;
         this.leftAt = leftAt;
         this.status = status;
@@ -35,6 +38,9 @@ public class PatientVisitResponse {
                 patientVisit.getId(),
                 patientVisit.getPatient().getId(),
                 patientVisit.getPatient().getName(),
+                patientVisit.getAppointment() == null
+                        ? null
+                        : patientVisit.getAppointment().getId(),
                 patientVisit.getArrivedAt(),
                 patientVisit.getLeftAt(),
                 patientVisit.getStatus()
@@ -51,6 +57,10 @@ public class PatientVisitResponse {
 
     public String getPatientName() {
         return patientName;
+    }
+
+    public Long getAppointmentId() {
+        return appointmentId;
     }
 
     public Instant getArrivedAt() {

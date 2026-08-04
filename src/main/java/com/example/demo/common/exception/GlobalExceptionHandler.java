@@ -1,11 +1,13 @@
 package com.example.demo.common.exception;
 
-import com.example.demo.appointment.exception.InvalidAppointmentStaffException;
 import com.example.demo.appointment.exception.AppointmentNotFoundException;
 import com.example.demo.appointment.exception.InvalidAppointmentStatusException;
 import com.example.demo.department.exception.DepartmentNotFoundException;
+import com.example.demo.examination.exception.DuplicateExamCodeException;
+import com.example.demo.examination.exception.ExaminationRoomNotFoundException;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
+import com.example.demo.patientvisit.exception.InvalidPatientVisitAppointmentException;
 import com.example.demo.staff.exception.InvalidStaffTypeException;
 import com.example.demo.staff.exception.StaffNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -86,20 +88,6 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
-    @ExceptionHandler(InvalidAppointmentStaffException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidAppointmentStaff(
-            InvalidAppointmentStaffException exception
-    ) {
-        ErrorResponse response = new ErrorResponse(
-                "INVALID_APPOINTMENT_STAFF",
-                exception.getMessage()
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(response);
-    }
-
     @ExceptionHandler(AppointmentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAppointmentNotFound(
             AppointmentNotFoundException exception
@@ -127,4 +115,47 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
+
+    @ExceptionHandler(ExaminationRoomNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExaminationRoomNotFound(
+            ExaminationRoomNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "EXAMINATION_ROOM_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(DuplicateExamCodeException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateExamCode(
+            DuplicateExamCodeException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "DUPLICATE_EXAM_CODE",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidPatientVisitAppointmentException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPatientVisitAppointment(
+            InvalidPatientVisitAppointmentException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_PATIENT_VISIT_APPOINTMENT",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
 }

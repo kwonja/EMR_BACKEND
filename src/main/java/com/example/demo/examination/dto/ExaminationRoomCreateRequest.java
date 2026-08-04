@@ -2,20 +2,12 @@ package com.example.demo.examination.dto;
 
 public class ExaminationRoomCreateRequest {
 
-    private Long departmentId;
     private String name;
+    private String roomNo;
     private String location;
     private String description;
 
     public ExaminationRoomCreateRequest() {
-    }
-
-    public Long getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
     }
 
     public String getName() {
@@ -24,6 +16,14 @@ public class ExaminationRoomCreateRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getRoomNo() {
+        return roomNo;
+    }
+
+    public void setRoomNo(String roomNo) {
+        this.roomNo = roomNo;
     }
 
     public String getLocation() {

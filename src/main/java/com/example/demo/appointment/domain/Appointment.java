@@ -1,9 +1,6 @@
 package com.example.demo.appointment.domain;
 
-import com.example.demo.department.domain.Department;
 import com.example.demo.patient.domain.Patient;
-import com.example.demo.patientvisit.domain.PatientVisit;
-import com.example.demo.staff.domain.Staff;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -34,27 +30,12 @@ public class Appointment {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
-
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "staff_id", nullable = false)
-    private Staff staff;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "patient_visit_id", unique = true)
-    private PatientVisit patientVisit;
-
     @Column(name = "scheduled_at", nullable = false)
     private LocalDateTime scheduledAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private AppointmentStatus status = AppointmentStatus.BOOKED;
-
-    @Column(length = 500)
-    private String symptoms;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -64,16 +45,10 @@ public class Appointment {
 
     public Appointment(
             Patient patient,
-            Department department,
-            Staff staff,
-            LocalDateTime scheduledAt,
-            String symptoms
+            LocalDateTime scheduledAt
     ) {
         this.patient = Objects.requireNonNull(patient);
-        this.department = Objects.requireNonNull(department);
-        this.staff = Objects.requireNonNull(staff);
         this.scheduledAt = Objects.requireNonNull(scheduledAt);
-        this.symptoms = symptoms;
     }
 
     @PrePersist
@@ -87,10 +62,6 @@ public class Appointment {
         this.status = Objects.requireNonNull(status);
     }
 
-    public void connectPatientVisit(PatientVisit patientVisit) {
-        this.patientVisit = Objects.requireNonNull(patientVisit);
-    }
-
     public Long getId() {
         return id;
     }
@@ -99,28 +70,12 @@ public class Appointment {
         return patient;
     }
 
-    public Department getDepartment() {
-        return department;
-    }
-
-    public Staff getStaff() {
-        return staff;
-    }
-
-    public PatientVisit getPatientVisit() {
-        return patientVisit;
-    }
-
     public LocalDateTime getScheduledAt() {
         return scheduledAt;
     }
 
     public AppointmentStatus getStatus() {
         return status;
-    }
-
-    public String getSymptoms() {
-        return symptoms;
     }
 
     public Instant getCreatedAt() {

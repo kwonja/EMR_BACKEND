@@ -3,6 +3,7 @@ package com.example.demo.patientvisit.dto;
 public class PatientVisitCreateRequest {
 
     private Long patientId;
+    private Long appointmentId;
 
     public PatientVisitCreateRequest() {
     }
@@ -13,5 +14,13 @@ public class PatientVisitCreateRequest {
 
     public void setPatientId(Long patientId) {
         this.patientId = patientId;
+    }
+
+    public Long getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(Long appointmentId) {
+        this.appointmentId = appointmentId;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.patientvisit.domain;
 
+import com.example.demo.appointment.domain.Appointment;
 import com.example.demo.patient.domain.Patient;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -29,6 +31,10 @@ public class PatientVisit {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "appointment_id", unique = true)
+    private Appointment appointment;
+
     @Column(name = "arrived_at", nullable = false, updatable = false)
     private Instant arrivedAt;
 
@@ -42,8 +48,9 @@ public class PatientVisit {
     protected PatientVisit() {
     }
 
-    public PatientVisit(Patient patient) {
+    public PatientVisit(Patient patient, Appointment appointment) {
         this.patient = Objects.requireNonNull(patient);
+        this.appointment = appointment;
     }
 
     @PrePersist
@@ -59,6 +66,10 @@ public class PatientVisit {
 
     public Patient getPatient() {
         return patient;
+    }
+
+    public Appointment getAppointment() {
+        return appointment;
     }
 
     public Instant getArrivedAt() {

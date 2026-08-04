@@ -5,10 +5,7 @@ import java.time.LocalDateTime;
 public class AppointmentCreateRequest {
 
     private Long patientId;
-    private Long departmentId;
-    private Long staffId;
     private LocalDateTime scheduledAt;
-    private String symptoms;
 
     public AppointmentCreateRequest() {
     }
@@ -21,22 +18,6 @@ public class AppointmentCreateRequest {
         this.patientId = patientId;
     }
 
-    public Long getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public Long getStaffId() {
-        return staffId;
-    }
-
-    public void setStaffId(Long staffId) {
-        this.staffId = staffId;
-    }
-
     public LocalDateTime getScheduledAt() {
         return scheduledAt;
     }
@@ -45,11 +26,4 @@ public class AppointmentCreateRequest {
         this.scheduledAt = scheduledAt;
     }
 
-    public String getSymptoms() {
-        return symptoms;
-    }
-
-    public void setSymptoms(String symptoms) {
-        this.symptoms = symptoms;
-    }
 }
