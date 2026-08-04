@@ -4,9 +4,13 @@ import com.example.demo.appointment.exception.AppointmentNotFoundException;
 import com.example.demo.appointment.exception.InvalidAppointmentStatusException;
 import com.example.demo.department.exception.DepartmentNotFoundException;
 import com.example.demo.examination.exception.DuplicateExamCodeException;
+import com.example.demo.examination.exception.ExamCatalogNotFoundException;
 import com.example.demo.examination.exception.ExaminationRoomNotFoundException;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
+import com.example.demo.patientexam.exception.DuplicatePatientExamSequenceException;
+import com.example.demo.patientexam.exception.InvalidPatientExamRequestException;
+import com.example.demo.patientexam.exception.PatientVisitNotFoundException;
 import com.example.demo.patientvisit.exception.InvalidPatientVisitAppointmentException;
 import com.example.demo.staff.exception.InvalidStaffTypeException;
 import com.example.demo.staff.exception.StaffNotFoundException;
@@ -155,6 +159,62 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(PatientVisitNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePatientVisitNotFound(
+            PatientVisitNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "PATIENT_VISIT_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(ExamCatalogNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExamCatalogNotFound(
+            ExamCatalogNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "EXAM_CATALOG_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidPatientExamRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPatientExamRequest(
+            InvalidPatientExamRequestException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_PATIENT_EXAM_REQUEST",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(DuplicatePatientExamSequenceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicatePatientExamSequence(
+            DuplicatePatientExamSequenceException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "DUPLICATE_PATIENT_EXAM_SEQUENCE",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(response);
     }
 

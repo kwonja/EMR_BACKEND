@@ -5,11 +5,15 @@ import com.example.demo.examination.domain.ExaminationRoom;
 import com.example.demo.examination.dto.ExamCatalogCreateRequest;
 import com.example.demo.examination.dto.ExamCatalogResponse;
 import com.example.demo.examination.exception.DuplicateExamCodeException;
+import com.example.demo.examination.exception.ExamCatalogNotFoundException;
 import com.example.demo.examination.exception.ExaminationRoomNotFoundException;
 import com.example.demo.examination.repository.ExamCatalogRepository;
 import com.example.demo.examination.repository.ExaminationRoomRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ExamCatalogService {
@@ -51,5 +55,25 @@ public class ExamCatalogService {
         } catch (DataIntegrityViolationException exception) {
             throw new DuplicateExamCodeException(request.getCode());
         }
+    }
+
+    public List<ExamCatalogResponse> findAll() {
+        List<ExamCatalog> examCatalogs =
+                examCatalogRepository.findAllWithExaminationRoom();
+        List<ExamCatalogResponse> responses = new ArrayList<>();
+
+        for (ExamCatalog examCatalog : examCatalogs) {
+            responses.add(ExamCatalogResponse.from(examCatalog));
+        }
+
+        return responses;
+    }
+
+    public ExamCatalogResponse findById(Long id) {
+        ExamCatalog examCatalog = examCatalogRepository
+                .findByIdWithExaminationRoom(id)
+                .orElseThrow(() -> new ExamCatalogNotFoundException(id));
+
+        return ExamCatalogResponse.from(examCatalog);
     }
 }

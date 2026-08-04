@@ -7,6 +7,8 @@ public class ExamCatalogResponse {
     private final Long id;
     private final Long examinationRoomId;
     private final String examinationRoomName;
+    private final String examinationRoomNo;
+    private final String examinationRoomLocation;
     private final String code;
     private final String name;
     private final String description;
@@ -16,6 +18,8 @@ public class ExamCatalogResponse {
             Long id,
             Long examinationRoomId,
             String examinationRoomName,
+            String examinationRoomNo,
+            String examinationRoomLocation,
             String code,
             String name,
             String description,
@@ -24,6 +28,8 @@ public class ExamCatalogResponse {
         this.id = id;
         this.examinationRoomId = examinationRoomId;
         this.examinationRoomName = examinationRoomName;
+        this.examinationRoomNo = examinationRoomNo;
+        this.examinationRoomLocation = examinationRoomLocation;
         this.code = code;
         this.name = name;
         this.description = description;
@@ -35,6 +41,8 @@ public class ExamCatalogResponse {
                 examCatalog.getId(),
                 examCatalog.getExaminationRoom().getId(),
                 examCatalog.getExaminationRoom().getName(),
+                examCatalog.getExaminationRoom().getRoomNo(),
+                examCatalog.getExaminationRoom().getLocation(),
                 examCatalog.getCode(),
                 examCatalog.getName(),
                 examCatalog.getDescription(),
@@ -52,6 +60,14 @@ public class ExamCatalogResponse {
 
     public String getExaminationRoomName() {
         return examinationRoomName;
+    }
+
+    public String getExaminationRoomNo() {
+        return examinationRoomNo;
+    }
+
+    public String getExaminationRoomLocation() {
+        return examinationRoomLocation;
     }
 
     public String getCode() {
