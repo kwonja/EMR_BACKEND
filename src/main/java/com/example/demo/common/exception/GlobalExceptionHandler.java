@@ -6,6 +6,9 @@ import com.example.demo.department.exception.DepartmentNotFoundException;
 import com.example.demo.examination.exception.DuplicateExamCodeException;
 import com.example.demo.examination.exception.ExamCatalogNotFoundException;
 import com.example.demo.examination.exception.ExaminationRoomNotFoundException;
+import com.example.demo.examroomqueue.exception.DuplicateActiveExamRoomQueueException;
+import com.example.demo.examroomqueue.exception.InvalidExamRoomQueueRequestException;
+import com.example.demo.examroomqueue.exception.PatientExamNotFoundException;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
 import com.example.demo.patientexam.exception.DuplicatePatientExamSequenceException;
@@ -210,6 +213,48 @@ public class GlobalExceptionHandler {
     ) {
         ErrorResponse response = new ErrorResponse(
                 "DUPLICATE_PATIENT_EXAM_SEQUENCE",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(PatientExamNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePatientExamNotFound(
+            PatientExamNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "PATIENT_EXAM_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidExamRoomQueueRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidExamRoomQueueRequest(
+            InvalidExamRoomQueueRequestException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_EXAM_ROOM_QUEUE_REQUEST",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(DuplicateActiveExamRoomQueueException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateActiveExamRoomQueue(
+            DuplicateActiveExamRoomQueueException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "DUPLICATE_ACTIVE_EXAM_ROOM_QUEUE",
                 exception.getMessage()
         );
 

@@ -37,9 +37,6 @@ public class ExamRoomQueue {
     @Column(name = "queue_number", nullable = false)
     private int queueNumber;
 
-    @Column(nullable = false)
-    private int priority;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private ExamRoomQueueStatus status = ExamRoomQueueStatus.WAITING;
@@ -58,12 +55,10 @@ public class ExamRoomQueue {
 
     public ExamRoomQueue(
             PatientExam patientExam,
-            int queueNumber,
-            int priority
+            int queueNumber
     ) {
         this.patientExam = Objects.requireNonNull(patientExam);
         this.queueNumber = queueNumber;
-        this.priority = priority;
     }
 
     @PrePersist
@@ -109,10 +104,6 @@ public class ExamRoomQueue {
 
     public int getQueueNumber() {
         return queueNumber;
-    }
-
-    public int getPriority() {
-        return priority;
     }
 
     public ExamRoomQueueStatus getStatus() {
