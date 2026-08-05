@@ -13,6 +13,8 @@ import com.example.demo.examroomqueue.exception.OutOfOrderPatientExamQueueExcept
 import com.example.demo.examroomqueue.exception.PatientExamNotFoundException;
 import com.example.demo.examroomqueue.repository.ExamRoomQueueRepository;
 import com.example.demo.examination.domain.ExaminationRoom;
+import com.example.demo.examination.exception.ExaminationRoomNotFoundException;
+import com.example.demo.examination.repository.ExaminationRoomRepository;
 import com.example.demo.patientexam.domain.PatientExam;
 import com.example.demo.patientexam.domain.PatientExamStatus;
 import com.example.demo.patientexam.repository.PatientExamRepository;
@@ -32,13 +34,16 @@ public class ExamRoomQueueService {
 
     private final ExamRoomQueueRepository examRoomQueueRepository;
     private final PatientExamRepository patientExamRepository;
+    private final ExaminationRoomRepository examinationRoomRepository;
 
     public ExamRoomQueueService(
             ExamRoomQueueRepository examRoomQueueRepository,
-            PatientExamRepository patientExamRepository
+            PatientExamRepository patientExamRepository,
+            ExaminationRoomRepository examinationRoomRepository
     ) {
         this.examRoomQueueRepository = examRoomQueueRepository;
         this.patientExamRepository = patientExamRepository;
+        this.examinationRoomRepository = examinationRoomRepository;
     }
 
     @Transactional
@@ -212,9 +217,16 @@ public class ExamRoomQueueService {
     }
 
     private ExamRoomQueue createQueue(PatientExam patientExam) {
-        ExaminationRoom examinationRoom = patientExam
+        Long examinationRoomId = patientExam
                 .getExamCatalog()
-                .getExaminationRoom();
+                .getExaminationRoom()
+                .getId();
+
+        ExaminationRoom examinationRoom = examinationRoomRepository
+                .findByIdForUpdate(examinationRoomId)
+                .orElseThrow(() -> new ExaminationRoomNotFoundException(
+                        examinationRoomId
+                ));
 
         if (!examinationRoom.isActive()) {
             throw new InvalidExamRoomQueueRequestException(
@@ -224,7 +236,7 @@ public class ExamRoomQueueService {
 
         int queueNumber = examRoomQueueRepository
                 .findMaxQueueNumberByExaminationRoomId(
-                        examinationRoom.getId()
+                        examinationRoomId
                 ) + 1;
 
         ExamRoomQueue queue = new ExamRoomQueue(
