@@ -50,6 +50,9 @@ public class ExamRoomQueue {
     @Column(name = "entered_at")
     private Instant enteredAt;
 
+    @Column(name = "exited_at")
+    private Instant exitedAt;
+
     protected ExamRoomQueue() {
     }
 
@@ -80,6 +83,11 @@ public class ExamRoomQueue {
     public void enter() {
         status = ExamRoomQueueStatus.ENTERED;
         enteredAt = Instant.now();
+    }
+
+    public void exit() {
+        status = ExamRoomQueueStatus.EXITED;
+        exitedAt = Instant.now();
     }
 
     public void cancel() {
@@ -120,5 +128,9 @@ public class ExamRoomQueue {
 
     public Instant getEnteredAt() {
         return enteredAt;
+    }
+
+    public Instant getExitedAt() {
+        return exitedAt;
     }
 }

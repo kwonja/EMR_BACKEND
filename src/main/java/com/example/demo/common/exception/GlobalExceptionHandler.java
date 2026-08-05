@@ -6,8 +6,12 @@ import com.example.demo.department.exception.DepartmentNotFoundException;
 import com.example.demo.examination.exception.DuplicateExamCodeException;
 import com.example.demo.examination.exception.ExamCatalogNotFoundException;
 import com.example.demo.examination.exception.ExaminationRoomNotFoundException;
+import com.example.demo.examroomqueue.exception.CalledQueueAlreadyExistsException;
 import com.example.demo.examroomqueue.exception.DuplicateActiveExamRoomQueueException;
+import com.example.demo.examroomqueue.exception.ExamRoomQueueNotFoundException;
 import com.example.demo.examroomqueue.exception.InvalidExamRoomQueueRequestException;
+import com.example.demo.examroomqueue.exception.InvalidExamRoomQueueStatusException;
+import com.example.demo.examroomqueue.exception.OutOfOrderPatientExamQueueException;
 import com.example.demo.examroomqueue.exception.PatientExamNotFoundException;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
@@ -21,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -260,6 +265,79 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(ExamRoomQueueNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExamRoomQueueNotFound(
+            ExamRoomQueueNotFoundException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "EXAM_ROOM_QUEUE_NOT_FOUND",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidExamRoomQueueStatusException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidExamRoomQueueStatus(
+            InvalidExamRoomQueueStatusException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_EXAM_ROOM_QUEUE_STATUS",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(CalledQueueAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCalledQueueAlreadyExists(
+            CalledQueueAlreadyExistsException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "CALLED_QUEUE_ALREADY_EXISTS",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(OutOfOrderPatientExamQueueException.class)
+    public ResponseEntity<ErrorResponse> handleOutOfOrderPatientExamQueue(
+            OutOfOrderPatientExamQueueException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "OUT_OF_ORDER_PATIENT_EXAM_QUEUE",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+            MethodArgumentTypeMismatchException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_REQUEST_PARAMETER",
+                "잘못된 요청 파라미터입니다: "
+                        + exception.getName()
+                        + "="
+                        + exception.getValue()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 

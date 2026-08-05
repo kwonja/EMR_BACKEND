@@ -4,6 +4,7 @@ import com.example.demo.examination.domain.ExamCatalog;
 import com.example.demo.examination.exception.ExamCatalogNotFoundException;
 import com.example.demo.examination.repository.ExamCatalogRepository;
 import com.example.demo.patientexam.domain.PatientExam;
+import com.example.demo.patientexam.domain.PatientExamStatus;
 import com.example.demo.patientexam.dto.PatientExamCreateItemRequest;
 import com.example.demo.patientexam.dto.PatientExamCreateRequest;
 import com.example.demo.patientexam.dto.PatientExamResponse;
@@ -106,6 +107,28 @@ public class PatientExamService {
         List<PatientExamResponse> responses = new ArrayList<>();
 
         for (PatientExam patientExam : savedPatientExams) {
+            responses.add(PatientExamResponse.from(patientExam));
+        }
+
+        return responses;
+    }
+
+    public List<PatientExamResponse> findAll(
+            Long patientVisitId,
+            PatientExamStatus status
+    ) {
+        if (!patientVisitRepository.existsById(patientVisitId)) {
+            throw new PatientVisitNotFoundException(patientVisitId);
+        }
+
+        List<PatientExam> patientExams = patientExamRepository
+                .findAllWithDetailsByPatientVisitId(
+                        patientVisitId,
+                        status
+                );
+        List<PatientExamResponse> responses = new ArrayList<>();
+
+        for (PatientExam patientExam : patientExams) {
             responses.add(PatientExamResponse.from(patientExam));
         }
 

@@ -6,14 +6,18 @@ import com.example.demo.examination.domain.ExamCatalog;
 import com.example.demo.examination.domain.ExaminationRoom;
 import com.example.demo.patient.domain.Patient;
 import com.example.demo.patientexam.domain.PatientExam;
+import com.example.demo.patientexam.domain.PatientExamStatus;
 import com.example.demo.staff.domain.Staff;
 
 import java.time.Instant;
 
 public class ExamRoomQueueResponse {
 
-    private final Long id;
+    private final Long queueId;
     private final Long patientExamId;
+    private final PatientExamStatus patientExamStatus;
+    private final Instant examStartedAt;
+    private final Instant examCompletedAt;
     private final Long patientVisitId;
     private final Long patientId;
     private final String patientName;
@@ -31,10 +35,14 @@ public class ExamRoomQueueResponse {
     private final Instant queuedAt;
     private final Instant calledAt;
     private final Instant enteredAt;
+    private final Instant exitedAt;
 
     public ExamRoomQueueResponse(
-            Long id,
+            Long queueId,
             Long patientExamId,
+            PatientExamStatus patientExamStatus,
+            Instant examStartedAt,
+            Instant examCompletedAt,
             Long patientVisitId,
             Long patientId,
             String patientName,
@@ -51,10 +59,14 @@ public class ExamRoomQueueResponse {
             ExamRoomQueueStatus status,
             Instant queuedAt,
             Instant calledAt,
-            Instant enteredAt
+            Instant enteredAt,
+            Instant exitedAt
     ) {
-        this.id = id;
+        this.queueId = queueId;
         this.patientExamId = patientExamId;
+        this.patientExamStatus = patientExamStatus;
+        this.examStartedAt = examStartedAt;
+        this.examCompletedAt = examCompletedAt;
         this.patientVisitId = patientVisitId;
         this.patientId = patientId;
         this.patientName = patientName;
@@ -72,6 +84,7 @@ public class ExamRoomQueueResponse {
         this.queuedAt = queuedAt;
         this.calledAt = calledAt;
         this.enteredAt = enteredAt;
+        this.exitedAt = exitedAt;
     }
 
     public static ExamRoomQueueResponse from(ExamRoomQueue queue) {
@@ -84,6 +97,9 @@ public class ExamRoomQueueResponse {
         return new ExamRoomQueueResponse(
                 queue.getId(),
                 patientExam.getId(),
+                patientExam.getStatus(),
+                patientExam.getStartedAt(),
+                patientExam.getCompletedAt(),
                 patientExam.getPatientVisit().getId(),
                 patient.getId(),
                 patient.getName(),
@@ -100,16 +116,29 @@ public class ExamRoomQueueResponse {
                 queue.getStatus(),
                 queue.getQueuedAt(),
                 queue.getCalledAt(),
-                queue.getEnteredAt()
+                queue.getEnteredAt(),
+                queue.getExitedAt()
         );
     }
 
-    public Long getId() {
-        return id;
+    public Long getQueueId() {
+        return queueId;
     }
 
     public Long getPatientExamId() {
         return patientExamId;
+    }
+
+    public PatientExamStatus getPatientExamStatus() {
+        return patientExamStatus;
+    }
+
+    public Instant getExamStartedAt() {
+        return examStartedAt;
+    }
+
+    public Instant getExamCompletedAt() {
+        return examCompletedAt;
     }
 
     public Long getPatientVisitId() {
@@ -178,5 +207,9 @@ public class ExamRoomQueueResponse {
 
     public Instant getEnteredAt() {
         return enteredAt;
+    }
+
+    public Instant getExitedAt() {
+        return exitedAt;
     }
 }
