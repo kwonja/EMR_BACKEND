@@ -4,6 +4,7 @@ import com.example.demo.examroomqueue.domain.ExamRoomQueueStatus;
 import com.example.demo.examroomqueue.dto.ExamRoomQueueCreateRequest;
 import com.example.demo.examroomqueue.dto.ExamRoomQueueResponse;
 import com.example.demo.examroomqueue.service.ExamRoomQueueService;
+import com.example.demo.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,10 +36,13 @@ public class ExamRoomQueueController {
             description = "환자 검사항목을 해당 검사실 대기열에 등록하고 대기번호를 발급합니다."
     )
     @PostMapping
-    public ExamRoomQueueResponse create(
+    public ApiResponse<ExamRoomQueueResponse> create(
             @RequestBody ExamRoomQueueCreateRequest request
     ) {
-        return examRoomQueueService.create(request);
+        return ApiResponse.success(
+                "검사실 대기열 등록 성공",
+                examRoomQueueService.create(request)
+        );
     }
 
     @Operation(
@@ -46,13 +50,16 @@ public class ExamRoomQueueController {
             description = "대기열 목록을 조회합니다. 검사실 ID와 대기 상태는 선택 조건입니다."
     )
     @GetMapping
-    public List<ExamRoomQueueResponse> findAll(
+    public ApiResponse<List<ExamRoomQueueResponse>> findAll(
             @RequestParam(required = false) Long examinationRoomId,
             @RequestParam(required = false) ExamRoomQueueStatus status
     ) {
-        return examRoomQueueService.findAll(
-                examinationRoomId,
-                status
+        return ApiResponse.success(
+                "대기열 목록 조회 성공",
+                examRoomQueueService.findAll(
+                        examinationRoomId,
+                        status
+                )
         );
     }
 
@@ -61,13 +68,16 @@ public class ExamRoomQueueController {
             description = "검사실 ID에 해당하는 대기열을 대기번호 순으로 조회합니다. 상태 조건은 선택 사항입니다."
     )
     @GetMapping("/examination-rooms/{examinationRoomId}")
-    public List<ExamRoomQueueResponse> findAllByExaminationRoomId(
+    public ApiResponse<List<ExamRoomQueueResponse>> findAllByExaminationRoomId(
             @PathVariable Long examinationRoomId,
             @RequestParam(required = false) ExamRoomQueueStatus status
     ) {
-        return examRoomQueueService.findAll(
-                examinationRoomId,
-                status
+        return ApiResponse.success(
+                "검사실별 대기열 조회 성공",
+                examRoomQueueService.findAll(
+                        examinationRoomId,
+                        status
+                )
         );
     }
 
@@ -76,10 +86,13 @@ public class ExamRoomQueueController {
             description = "WAITING 상태의 대기열을 CALLED 상태로 변경하고 호출 시간을 기록합니다."
     )
     @PatchMapping("/{queueId}/call")
-    public ExamRoomQueueResponse call(
+    public ApiResponse<ExamRoomQueueResponse> call(
             @PathVariable Long queueId
     ) {
-        return examRoomQueueService.call(queueId);
+        return ApiResponse.success(
+                "대기 환자 호출 성공",
+                examRoomQueueService.call(queueId)
+        );
     }
 
     @Operation(
@@ -87,10 +100,13 @@ public class ExamRoomQueueController {
             description = "호출된 환자를 검사실에 입장시키고 환자 검사를 진행 중 상태로 변경합니다."
     )
     @PatchMapping("/{queueId}/enter")
-    public ExamRoomQueueResponse enter(
+    public ApiResponse<ExamRoomQueueResponse> enter(
             @PathVariable Long queueId
     ) {
-        return examRoomQueueService.enter(queueId);
+        return ApiResponse.success(
+                "검사실 입장 처리 성공",
+                examRoomQueueService.enter(queueId)
+        );
     }
 
     @Operation(
@@ -98,9 +114,12 @@ public class ExamRoomQueueController {
             description = "진행 중인 검사를 완료하고 대기열을 퇴실 상태로 변경합니다."
     )
     @PatchMapping("/{queueId}/complete")
-    public ExamRoomQueueResponse complete(
+    public ApiResponse<ExamRoomQueueResponse> complete(
             @PathVariable Long queueId
     ) {
-        return examRoomQueueService.complete(queueId);
+        return ApiResponse.success(
+                "검사 완료 처리 성공",
+                examRoomQueueService.complete(queueId)
+        );
     }
 }

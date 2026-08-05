@@ -1,20 +1,10 @@
 package com.example.demo.common.exception;
 
-public class ErrorResponse {
+import com.example.demo.common.response.ApiResponse;
 
-    private final String code;
-    private final String message;
+public class ErrorResponse extends ApiResponse<Void> {
 
     public ErrorResponse(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
+        super(false, code, message, null);
     }
 }

@@ -4,6 +4,7 @@ import com.example.demo.patient.dto.PatientCreateRequest;
 import com.example.demo.patient.dto.PatientResponse;
 import com.example.demo.patient.dto.PatientUpdateRequest;
 import com.example.demo.patient.service.PatientService;
+import com.example.demo.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,10 +33,13 @@ public class PatientController {
             description = "환자의 기본정보를 이용해 새로운 환자를 등록합니다."
     )
     @PostMapping
-    public PatientResponse create(
+    public ApiResponse<PatientResponse> create(
             @RequestBody PatientCreateRequest request
     ) {
-        return patientService.create(request);
+        return ApiResponse.success(
+                "환자 등록 성공",
+                patientService.create(request)
+        );
     }
 
     @Operation(
@@ -43,8 +47,11 @@ public class PatientController {
             description = "환자 ID를 이용해 환자의 상세 정보를 조회합니다."
     )
     @GetMapping("/{id}")
-    public PatientResponse findById(@PathVariable Long id) {
-        return patientService.findById(id);
+    public ApiResponse<PatientResponse> findById(@PathVariable Long id) {
+        return ApiResponse.success(
+                "환자 조회 성공",
+                patientService.findById(id)
+        );
     }
 
     @Operation(
@@ -52,8 +59,11 @@ public class PatientController {
             description = "등록된 전체 환자 목록을 조회합니다."
     )
     @GetMapping
-    public List<PatientResponse> findAll() {
-        return patientService.findAll();
+    public ApiResponse<List<PatientResponse>> findAll() {
+        return ApiResponse.success(
+                "환자 목록 조회 성공",
+                patientService.findAll()
+        );
     }
 
     @Operation(
@@ -62,10 +72,13 @@ public class PatientController {
                     + "모든 항목은 선택 사항이며, 요청에 포함된 값만 변경됩니다."
     )
     @PatchMapping("/{id}")
-    public PatientResponse update(
+    public ApiResponse<PatientResponse> update(
             @PathVariable Long id,
             @RequestBody PatientUpdateRequest request
     ) {
-        return patientService.update(id, request);
+        return ApiResponse.success(
+                "환자 정보 수정 성공",
+                patientService.update(id, request)
+        );
     }
 }

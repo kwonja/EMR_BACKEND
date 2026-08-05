@@ -3,6 +3,7 @@ package com.example.demo.examination.controller;
 import com.example.demo.examination.dto.ExaminationRoomCreateRequest;
 import com.example.demo.examination.dto.ExaminationRoomResponse;
 import com.example.demo.examination.service.ExaminationRoomService;
+import com.example.demo.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,10 +33,13 @@ public class ExaminationRoomController {
             description = "검사실 이름, 번호와 위치를 이용해 새로운 검사실을 등록합니다."
     )
     @PostMapping
-    public ExaminationRoomResponse create(
+    public ApiResponse<ExaminationRoomResponse> create(
             @RequestBody ExaminationRoomCreateRequest request
     ) {
-        return examinationRoomService.create(request);
+        return ApiResponse.success(
+                "검사실 등록 성공",
+                examinationRoomService.create(request)
+        );
     }
 
     @Operation(
@@ -43,15 +47,18 @@ public class ExaminationRoomController {
             description = "검사실 목록을 조회합니다. 위치, 검사실 이름과 번호는 선택 조건입니다."
     )
     @GetMapping
-    public List<ExaminationRoomResponse> findAll(
+    public ApiResponse<List<ExaminationRoomResponse>> findAll(
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String roomName,
             @RequestParam(required = false) String roomNo
     ) {
-        return examinationRoomService.findAll(
-                location,
-                roomName,
-                roomNo
+        return ApiResponse.success(
+                "검사실 목록 조회 성공",
+                examinationRoomService.findAll(
+                        location,
+                        roomName,
+                        roomNo
+                )
         );
     }
 }

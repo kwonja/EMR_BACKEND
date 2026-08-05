@@ -4,6 +4,7 @@ import com.example.demo.patientexam.domain.PatientExamStatus;
 import com.example.demo.patientexam.dto.PatientExamCreateRequest;
 import com.example.demo.patientexam.dto.PatientExamResponse;
 import com.example.demo.patientexam.service.PatientExamService;
+import com.example.demo.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,11 +33,14 @@ public class PatientExamController {
             description = "방문한 환자가 받아야 할 검사항목과 검사 순서를 등록합니다."
     )
     @PostMapping
-    public List<PatientExamResponse> create(
+    public ApiResponse<List<PatientExamResponse>> create(
             @PathVariable Long patientVisitId,
             @RequestBody PatientExamCreateRequest request
     ) {
-        return patientExamService.create(patientVisitId, request);
+        return ApiResponse.success(
+                "환자 검사항목 등록 성공",
+                patientExamService.create(patientVisitId, request)
+        );
     }
 
     @Operation(
@@ -44,13 +48,16 @@ public class PatientExamController {
             description = "방문 ID에 해당하는 검사항목을 검사 순서대로 조회합니다. 상태 조건은 선택 사항입니다."
     )
     @GetMapping
-    public List<PatientExamResponse> findAll(
+    public ApiResponse<List<PatientExamResponse>> findAll(
             @PathVariable Long patientVisitId,
             @RequestParam(required = false) PatientExamStatus status
     ) {
-        return patientExamService.findAll(
-                patientVisitId,
-                status
+        return ApiResponse.success(
+                "환자 검사항목 목록 조회 성공",
+                patientExamService.findAll(
+                        patientVisitId,
+                        status
+                )
         );
     }
 }
