@@ -1,8 +1,13 @@
 package com.example.demo.department.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class DepartmentUpdateRequest {
 
+    @Schema(description = "변경할 부서 이름", example = "종합검진부")
     private String name;
+
+    @Schema(description = "변경할 부서 유형", example = "EXAMINATION")
     private String departmentType;
 
     public DepartmentUpdateRequest() {
