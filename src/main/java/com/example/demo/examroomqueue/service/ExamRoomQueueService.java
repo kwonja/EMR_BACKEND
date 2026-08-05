@@ -232,6 +232,7 @@ public class ExamRoomQueueService {
                 queueNumber
         );
 
+        patientExam.getPatientVisit().start();
         patientExam.waitForExam();
         patientExamRepository.save(patientExam);
 

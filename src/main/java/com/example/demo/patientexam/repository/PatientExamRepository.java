@@ -51,4 +51,11 @@ public interface PatientExamRepository extends JpaRepository<PatientExam, Long> 
             @Param("patientVisitId") Long patientVisitId,
             @Param("status") PatientExamStatus status
     );
+
+    long countByPatientVisit_Id(Long patientVisitId);
+
+    boolean existsByPatientVisit_IdAndStatusNot(
+            Long patientVisitId,
+            PatientExamStatus status
+    );
 }

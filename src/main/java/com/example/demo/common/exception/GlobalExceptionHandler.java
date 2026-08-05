@@ -19,6 +19,7 @@ import com.example.demo.patientexam.exception.DuplicatePatientExamSequenceExcept
 import com.example.demo.patientexam.exception.InvalidPatientExamRequestException;
 import com.example.demo.patientexam.exception.PatientVisitNotFoundException;
 import com.example.demo.patientvisit.exception.InvalidPatientVisitAppointmentException;
+import com.example.demo.patientvisit.exception.IncompletePatientVisitExamsException;
 import com.example.demo.staff.exception.InvalidStaffTypeException;
 import com.example.demo.staff.exception.StaffNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -181,6 +182,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(IncompletePatientVisitExamsException.class)
+    public ResponseEntity<ErrorResponse> handleIncompletePatientVisitExams(
+            IncompletePatientVisitExamsException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                "INCOMPLETE_PATIENT_VISIT_EXAMS",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(response);
     }
 

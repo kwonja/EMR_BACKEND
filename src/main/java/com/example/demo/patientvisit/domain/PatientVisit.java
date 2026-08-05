@@ -60,6 +60,17 @@ public class PatientVisit {
         }
     }
 
+    public void start() {
+        if (status == PatientVisitStatus.CHECKED_IN) {
+            status = PatientVisitStatus.IN_PROGRESS;
+        }
+    }
+
+    public void complete() {
+        status = PatientVisitStatus.COMPLETED;
+        leftAt = Instant.now();
+    }
+
     public Long getId() {
         return id;
     }
