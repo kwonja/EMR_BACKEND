@@ -83,6 +83,12 @@ Client
 
 [동시성 문제 해결 과정](ISSUE/02-concurrency-pessimistic-lock.md)
 
+### WebSocket을 이용한 대기열 이벤트 전파
+
+대기열 등록, 호출, 입장 및 완료 상태가 변경되면 트랜잭션 커밋 이후 전체 관제 화면과 해당 검사실 화면에 이벤트를 전달합니다. 하나의 WebSocket 연결에서 전체 Topic과 검사실별 Topic을 구독할 수 있도록 구성했습니다.
+
+[WebSocket 구독 구조와 이벤트 전파 과정](ISSUE/03-websocket-event-subscription.md)
+
 ## 공통 API 응답
 
 모든 API는 `ApiResponse<T>`를 사용해 성공 여부, 메시지와 응답 데이터를 동일한 형식으로 반환합니다.
