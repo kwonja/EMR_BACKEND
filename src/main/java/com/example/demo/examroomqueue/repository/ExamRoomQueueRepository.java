@@ -48,7 +48,8 @@ public interface ExamRoomQueueRepository
             JOIN FETCH patientVisit.patient
             JOIN FETCH patientExam.examCatalog examCatalog
             JOIN FETCH examCatalog.examinationRoom room
-            LEFT JOIN FETCH queue.assignedStaff
+            LEFT JOIN FETCH queue.assignedStaff assignedStaff
+            LEFT JOIN FETCH assignedStaff.department
             WHERE (:examinationRoomId IS NULL
                     OR room.id = :examinationRoomId)
               AND (:status IS NULL OR queue.status = :status)
@@ -67,7 +68,8 @@ public interface ExamRoomQueueRepository
             JOIN FETCH patientVisit.patient
             JOIN FETCH patientExam.examCatalog examCatalog
             JOIN FETCH examCatalog.examinationRoom
-            LEFT JOIN FETCH queue.assignedStaff
+            LEFT JOIN FETCH queue.assignedStaff assignedStaff
+            LEFT JOIN FETCH assignedStaff.department
             WHERE queue.id = :id
             """)
     Optional<ExamRoomQueue> findByIdWithDetails(

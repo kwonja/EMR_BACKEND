@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대기열 WebSocket 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.3.0/bundles/stomp.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 20px;
+            background: #f6f8fb;
+            color: #172033;
+            font-family: Arial, "Malgun Gothic", sans-serif;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+        }
+
+        .description {
+            margin: 0 0 24px;
+            color: #52606d;
+        }
+
+        .controls,
+        .log-panel {
+            border: 1px solid #d9e2ec;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: 12px;
+            padding: 18px;
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            color: #52606d;
+            font-size: 14px;
+        }
+
+        input,
+        button {
+            height: 38px;
+            border: 1px solid #bcccdc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 110px;
+            padding: 0 10px;
+        }
+
+        button {
+            padding: 0 14px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        button.primary {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .status {
+            margin: 16px 0;
+            font-weight: 700;
+        }
+
+        .status.connected {
+            color: #17834c;
+        }
+
+        .status.disconnected {
+            color: #b42318;
+        }
+
+        .logs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .log-panel {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .log-panel h2 {
+            margin: 0;
+            padding: 14px 16px;
+            border-bottom: 1px solid #d9e2ec;
+            font-size: 16px;
+        }
+
+        .destination {
+            display: block;
+            margin-top: 5px;
+            color: #627d98;
+            font-size: 12px;
+            font-weight: 400;
+            overflow-wrap: anywhere;
+        }
+
+        .log {
+            min-height: 360px;
+            max-height: 560px;
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            background: #111827;
+            color: #d1fae5;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .help {
+            margin-top: 18px;
+            color: #52606d;
+            font-size: 14px;
+        }
+
+        @media (max-width: 720px) {
+            .logs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>대기열 WebSocket 테스트</h1>
+<p class="description">
+    연결 하나로 전체 대기열 Topic과 선택한 검사실 Topic을 동시에 구독합니다.
+    WebSocket 엔드포인트: <code id="webSocketEndpoint">/rfid/ws</code>
+</p>
+
+<section class="controls">
+    <label>
+        검사실 ID
+        <input id="roomId" type="number" min="1" value="1">
+    </label>
+
+    <button id="connectButton" class="primary" type="button">연결 및 구독</button>
+    <button id="changeRoomButton" type="button" disabled>검사실 구독 변경</button>
+    <button id="disconnectButton" type="button" disabled>연결 해제</button>
+    <button id="clearButton" type="button">로그 지우기</button>
+</section>
+
+<div id="status" class="status disconnected">연결되지 않음</div>
+
+<main class="logs">
+    <section class="log-panel">
+        <h2>
+            전체 이벤트
+            <span class="destination">/event/wait-queue</span>
+        </h2>
+        <pre id="globalLog" class="log">이벤트 대기 중...</pre>
+    </section>
+
+    <section class="log-panel">
+        <h2>
+            검사실별 이벤트
+            <span id="roomDestination" class="destination">/event/wait-queue/examination-rooms/1</span>
+        </h2>
+        <pre id="roomLog" class="log">이벤트 대기 중...</pre>
+    </section>
+</main>
+
+<p class="help">
+    연결 후 Swagger 또는 Postman에서 대기열 등록 API를 호출하세요. 같은 이벤트가 양쪽에 표시되면 전체·검사실별 전송이 모두 성공한 것입니다.
+</p>
+
+<script>
+    const WEBSOCKET_ENDPOINT = "/rfid/ws";
+    const GLOBAL_DESTINATION = "/event/wait-queue";
+    const ROOM_DESTINATION_PREFIX = "/event/wait-queue/examination-rooms/";
+
+    const roomIdInput = document.getElementById("roomId");
+    const connectButton = document.getElementById("connectButton");
+    const changeRoomButton = document.getElementById("changeRoomButton");
+    const disconnectButton = document.getElementById("disconnectButton");
+    const clearButton = document.getElementById("clearButton");
+    const statusElement = document.getElementById("status");
+    const globalLog = document.getElementById("globalLog");
+    const roomLog = document.getElementById("roomLog");
+    const roomDestinationElement = document.getElementById("roomDestination");
+
+    let client = null;
+    let globalSubscription = null;
+    let roomSubscription = null;
+
+    function getRoomId() {
+        const roomId = roomIdInput.value.trim();
+
+        if (!roomId) {
+            throw new Error("검사실 ID를 입력해주세요.");
+        }
+
+        return roomId;
+    }
+
+    function getBrokerUrl() {
+        if (window.location.protocol === "file:") {
+            return `ws://localhost:8080${WEBSOCKET_ENDPOINT}`;
+        }
+
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        return `${protocol}://${window.location.host}${WEBSOCKET_ENDPOINT}`;
+    }
+
+    function setStatus(message, connected) {
+        statusElement.textContent = message;
+        statusElement.className = `status ${connected ? "connected" : "disconnected"}`;
+        connectButton.disabled = connected;
+        changeRoomButton.disabled = !connected;
+        disconnectButton.disabled = !connected;
+    }
+
+    function appendLog(element, source, message) {
+        let body;
+
+        try {
+            body = JSON.stringify(JSON.parse(message.body), null, 2);
+        } catch (error) {
+            body = message.body;
+        }
+
+        const timestamp = new Date().toLocaleTimeString();
+        const entry = `[${timestamp}] ${source}\n${body}\n\n`;
+
+        if (element.textContent === "이벤트 대기 중...") {
+            element.textContent = "";
+        }
+
+        element.textContent = entry + element.textContent;
+    }
+
+    function subscribeGlobal() {
+        globalSubscription = client.subscribe(
+            GLOBAL_DESTINATION,
+            message => appendLog(globalLog, "전체 Topic", message)
+        );
+    }
+
+    function subscribeRoom() {
+        const roomId = getRoomId();
+        const destination = ROOM_DESTINATION_PREFIX + roomId;
+
+        if (roomSubscription) {
+            roomSubscription.unsubscribe();
+        }
+
+        roomDestinationElement.textContent = destination;
+        roomLog.textContent = "이벤트 대기 중...";
+        roomSubscription = client.subscribe(
+            destination,
+            message => appendLog(roomLog, `검사실 ${roomId} Topic`, message)
+        );
+    }
+
+    function connect() {
+        try {
+            getRoomId();
+        } catch (error) {
+            alert(error.message);
+            return;
+        }
+
+        client = new StompJs.Client({
+            brokerURL: getBrokerUrl(),
+            reconnectDelay: 5000,
+            heartbeatIncoming: 10000,
+            heartbeatOutgoing: 10000,
+            debug: () => {
+            }
+        });
+
+        client.onConnect = () => {
+            subscribeGlobal();
+            subscribeRoom();
+            setStatus(`연결됨: ${getBrokerUrl()}`, true);
+        };
+
+        client.onWebSocketError = event => {
+            setStatus(`WebSocket 오류: ${event.type}`, false);
+        };
+
+        client.onStompError = frame => {
+            setStatus(`STOMP 오류: ${frame.headers.message || frame.body}`, false);
+        };
+
+        client.onWebSocketClose = () => {
+            globalSubscription = null;
+            roomSubscription = null;
+            setStatus("연결이 종료됨", false);
+        };
+
+        setStatus("연결 중...", false);
+        connectButton.disabled = true;
+        client.activate();
+    }
+
+    async function disconnect() {
+        if (client) {
+            await client.deactivate();
+        }
+
+        client = null;
+        globalSubscription = null;
+        roomSubscription = null;
+        setStatus("연결되지 않음", false);
+    }
+
+    connectButton.addEventListener("click", connect);
+
+    changeRoomButton.addEventListener("click", () => {
+        try {
+            subscribeRoom();
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    disconnectButton.addEventListener("click", disconnect);
+
+    clearButton.addEventListener("click", () => {
+        globalLog.textContent = "이벤트 대기 중...";
+        roomLog.textContent = "이벤트 대기 중...";
+    });
+</script>
+</body>
+</html>

@@ -15,7 +15,7 @@ public class PatientVisitProgressResponse {
     private final int totalExamCount;
     private final int completedExamCount;
     private final int remainingExamCount;
-    private final PatientExamResponse currentExam;
+    private final PatientExamResponse inProgressExam;
     private final List<PatientExamResponse> exams;
 
     public PatientVisitProgressResponse(
@@ -26,7 +26,7 @@ public class PatientVisitProgressResponse {
             int totalExamCount,
             int completedExamCount,
             int remainingExamCount,
-            PatientExamResponse currentExam,
+            PatientExamResponse inProgressExam,
             List<PatientExamResponse> exams
     ) {
         this.patientVisitId = patientVisitId;
@@ -36,14 +36,14 @@ public class PatientVisitProgressResponse {
         this.totalExamCount = totalExamCount;
         this.completedExamCount = completedExamCount;
         this.remainingExamCount = remainingExamCount;
-        this.currentExam = currentExam;
+        this.inProgressExam = inProgressExam;
         this.exams = exams;
     }
 
     public static PatientVisitProgressResponse of(
             PatientVisit patientVisit,
             int completedExamCount,
-            PatientExamResponse currentExam,
+            PatientExamResponse inProgressExam,
             List<PatientExamResponse> exams
     ) {
         int totalExamCount = exams.size();
@@ -56,7 +56,7 @@ public class PatientVisitProgressResponse {
                 totalExamCount,
                 completedExamCount,
                 totalExamCount - completedExamCount,
-                currentExam,
+                inProgressExam,
                 exams
         );
     }
@@ -89,8 +89,8 @@ public class PatientVisitProgressResponse {
         return remainingExamCount;
     }
 
-    public PatientExamResponse getCurrentExam() {
-        return currentExam;
+    public PatientExamResponse getInProgressExam() {
+        return inProgressExam;
     }
 
     public List<PatientExamResponse> getExams() {

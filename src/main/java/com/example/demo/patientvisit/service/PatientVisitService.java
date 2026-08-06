@@ -82,7 +82,6 @@ public class PatientVisitService {
                 .findAllWithDetailsByPatientVisitId(patientVisitId, null);
         List<PatientExamResponse> examResponses = new ArrayList<>();
         PatientExamResponse inProgressExam = null;
-        PatientExamResponse waitingExam = null;
         int completedExamCount = 0;
 
         for (PatientExam patientExam : patientExams) {
@@ -98,20 +97,12 @@ public class PatientVisitService {
                 inProgressExam = response;
             }
 
-            if (waitingExam == null
-                    && patientExam.getStatus() == PatientExamStatus.WAITING) {
-                waitingExam = response;
-            }
         }
-
-        PatientExamResponse currentExam = inProgressExam != null
-                ? inProgressExam
-                : waitingExam;
 
         return PatientVisitProgressResponse.of(
                 patientVisit,
                 completedExamCount,
-                currentExam,
+                inProgressExam,
                 examResponses
         );
     }

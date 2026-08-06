@@ -1,6 +1,8 @@
 package com.example.demo.examroomqueue.service;
 
 import com.example.demo.examroomqueue.domain.ExamRoomQueue;
+import com.example.demo.examroomqueue.domain.ExamRoomQueueEvent;
+import com.example.demo.examroomqueue.domain.ExamRoomQueueEventType;
 import com.example.demo.examroomqueue.domain.ExamRoomQueueStatus;
 import com.example.demo.examroomqueue.dto.ExamRoomQueueCreateRequest;
 import com.example.demo.examroomqueue.dto.ExamRoomQueueResponse;
@@ -20,6 +22,7 @@ import com.example.demo.patientexam.domain.PatientExamStatus;
 import com.example.demo.patientexam.repository.PatientExamRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,15 +38,18 @@ public class ExamRoomQueueService {
     private final ExamRoomQueueRepository examRoomQueueRepository;
     private final PatientExamRepository patientExamRepository;
     private final ExaminationRoomRepository examinationRoomRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ExamRoomQueueService(
             ExamRoomQueueRepository examRoomQueueRepository,
             PatientExamRepository patientExamRepository,
-            ExaminationRoomRepository examinationRoomRepository
+            ExaminationRoomRepository examinationRoomRepository,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.examRoomQueueRepository = examRoomQueueRepository;
         this.patientExamRepository = patientExamRepository;
         this.examinationRoomRepository = examinationRoomRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -90,6 +96,11 @@ public class ExamRoomQueueService {
         }
 
         ExamRoomQueue savedQueue = createQueue(patientExam);
+
+        publishQueueEvent(
+                ExamRoomQueueEventType.QUEUE_CREATED,
+                savedQueue
+        );
 
         return ExamRoomQueueResponse.from(savedQueue);
     }
@@ -147,6 +158,11 @@ public class ExamRoomQueueService {
         ExamRoomQueue savedQueue = examRoomQueueRepository
                 .saveAndFlush(queue);
 
+        publishQueueEvent(
+                ExamRoomQueueEventType.QUEUE_CALLED,
+                savedQueue
+        );
+
         return ExamRoomQueueResponse.from(savedQueue);
     }
 
@@ -180,6 +196,11 @@ public class ExamRoomQueueService {
         ExamRoomQueue savedQueue = examRoomQueueRepository
                 .saveAndFlush(queue);
 
+        publishQueueEvent(
+                ExamRoomQueueEventType.QUEUE_ENTERED,
+                savedQueue
+        );
+
         return ExamRoomQueueResponse.from(savedQueue);
     }
 
@@ -212,6 +233,11 @@ public class ExamRoomQueueService {
         patientExamRepository.save(patientExam);
         ExamRoomQueue savedQueue = examRoomQueueRepository
                 .saveAndFlush(queue);
+
+        publishQueueEvent(
+                ExamRoomQueueEventType.QUEUE_COMPLETED,
+                savedQueue
+        );
 
         return ExamRoomQueueResponse.from(savedQueue);
     }
@@ -249,6 +275,18 @@ public class ExamRoomQueueService {
         patientExamRepository.save(patientExam);
 
         return examRoomQueueRepository.saveAndFlush(queue);
+    }
+
+    private void publishQueueEvent(
+            ExamRoomQueueEventType eventType,
+            ExamRoomQueue queue
+    ) {
+        ExamRoomQueueEvent event = ExamRoomQueueEvent.from(
+                eventType,
+                queue
+        );
+
+        eventPublisher.publishEvent(event);
     }
 
     private void validateRequest(ExamRoomQueueCreateRequest request) {
