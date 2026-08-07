@@ -68,6 +68,46 @@ List<PatientExam> findAllWithDetailsByPatientVisitId(
 );
 ```
 
+## N에서 1 방향의 Fetch Join이 적합한 이유
+
+현재 대기열 목록은 `ExamRoomQueue`를 조회 기준으로 사용하고, 이후 연관관계를 대부분 `N → 1` 방향으로 탐색합니다.
+
+```text
+ExamRoomQueue(N) → PatientExam(1)
+PatientExam(N)   → PatientVisit(1)
+PatientVisit(N)  → Patient(1)
+PatientExam(N)   → ExamCatalog(1)
+ExamCatalog(N)   → ExaminationRoom(1)
+```
+
+N 쪽 Entity 한 행이 참조하는 1 쪽 Entity는 하나이므로, 이 관계들을 Fetch Join해도 기준인 대기열 한 행이 여러 행으로 증가하지 않습니다.
+
+```text
+대기열 1행
+ ├─ 환자 검사 1행
+ ├─ 환자 방문 1행
+ ├─ 환자 1행
+ ├─ 검사항목 1행
+ └─ 검사실 1행
+```
+
+따라서 목록의 각 대기열에서 반드시 사용하는 To-One 연관관계를 함께 가져오는 경우 Fetch Join이 특히 유용합니다. 추가 SELECT로 발생하는 N+1 문제를 막으면서도 조인 결과 행의 개수를 기준 Entity 목록과 비슷하게 유지할 수 있습니다.
+
+반대로 `1 → N` 방향의 컬렉션을 Fetch Join하면 자식 개수만큼 부모 데이터가 SQL 결과에서 반복됩니다.
+
+```text
+ExaminationRoom(1) → ExamCatalog(N)
+
+검사실 1 + 검사항목 A
+검사실 1 + 검사항목 B
+검사실 1 + 검사항목 C
+```
+
+즉, Fetch Join은 단순히 N+1 문제가 있다는 이유만으로 사용하는 것이 아니라 조회 기준과 연관관계의 방향도 함께 고려해야 합니다.
+
+- 조회 기준이 N이고 대상이 1인 `ManyToOne`, `OneToOne`: 결과 행이 잘 증가하지 않아 Fetch Join에 적합
+- 조회 기준이 1이고 대상이 N인 `OneToMany`, `ManyToMany`: 결과 행 중복과 페이징 문제를 고려
+
 ## 개선 결과
 
 Fetch Join을 사용하면 목록과 응답 생성에 필요한 연관 데이터를 하나의 조인 쿼리로 가져옵니다.

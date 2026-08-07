@@ -41,6 +41,18 @@ public interface ExamRoomQueueRepository
     );
 
     @Query("""
+            SELECT room.id
+            FROM ExamRoomQueue queue
+            JOIN queue.patientExam patientExam
+            JOIN patientExam.examCatalog examCatalog
+            JOIN examCatalog.examinationRoom room
+            WHERE queue.id = :queueId
+            """)
+    Optional<Long> findExaminationRoomIdByQueueId(
+            @Param("queueId") Long queueId
+    );
+
+    @Query("""
             SELECT queue
             FROM ExamRoomQueue queue
             JOIN FETCH queue.patientExam patientExam

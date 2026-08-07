@@ -126,11 +126,8 @@ public class ExamRoomQueueService {
 
     @Transactional
     public ExamRoomQueueResponse call(Long queueId) {
-        ExamRoomQueue queue = examRoomQueueRepository
-                .findByIdWithDetails(queueId)
-                .orElseThrow(() -> new ExamRoomQueueNotFoundException(
-                        queueId
-                ));
+        Long examinationRoomId = lockExaminationRoomForQueue(queueId);
+        ExamRoomQueue queue = findQueueAfterLock(queueId);
 
         if (queue.getStatus() != ExamRoomQueueStatus.WAITING) {
             throw new InvalidExamRoomQueueStatusException(
@@ -138,12 +135,6 @@ public class ExamRoomQueueService {
                             + queue.getStatus()
             );
         }
-
-        Long examinationRoomId = queue
-                .getPatientExam()
-                .getExamCatalog()
-                .getExaminationRoom()
-                .getId();
 
         if (examRoomQueueRepository.existsByExaminationRoomIdAndStatus(
                 examinationRoomId,
@@ -168,11 +159,8 @@ public class ExamRoomQueueService {
 
     @Transactional
     public ExamRoomQueueResponse enter(Long queueId) {
-        ExamRoomQueue queue = examRoomQueueRepository
-                .findByIdWithDetails(queueId)
-                .orElseThrow(() -> new ExamRoomQueueNotFoundException(
-                        queueId
-                ));
+        lockExaminationRoomForQueue(queueId);
+        ExamRoomQueue queue = findQueueAfterLock(queueId);
 
         if (queue.getStatus() != ExamRoomQueueStatus.CALLED) {
             throw new InvalidExamRoomQueueStatusException(
@@ -206,11 +194,8 @@ public class ExamRoomQueueService {
 
     @Transactional
     public ExamRoomQueueResponse complete(Long queueId) {
-        ExamRoomQueue queue = examRoomQueueRepository
-                .findByIdWithDetails(queueId)
-                .orElseThrow(() -> new ExamRoomQueueNotFoundException(
-                        queueId
-                ));
+        lockExaminationRoomForQueue(queueId);
+        ExamRoomQueue queue = findQueueAfterLock(queueId);
 
         if (queue.getStatus() != ExamRoomQueueStatus.ENTERED) {
             throw new InvalidExamRoomQueueStatusException(
@@ -275,6 +260,30 @@ public class ExamRoomQueueService {
         patientExamRepository.save(patientExam);
 
         return examRoomQueueRepository.saveAndFlush(queue);
+    }
+
+    private Long lockExaminationRoomForQueue(Long queueId) {
+        Long examinationRoomId = examRoomQueueRepository
+                .findExaminationRoomIdByQueueId(queueId)
+                .orElseThrow(() -> new ExamRoomQueueNotFoundException(
+                        queueId
+                ));
+
+        examinationRoomRepository
+                .findByIdForUpdate(examinationRoomId)
+                .orElseThrow(() -> new ExaminationRoomNotFoundException(
+                        examinationRoomId
+                ));
+
+        return examinationRoomId;
+    }
+
+    private ExamRoomQueue findQueueAfterLock(Long queueId) {
+        return examRoomQueueRepository
+                .findByIdWithDetails(queueId)
+                .orElseThrow(() -> new ExamRoomQueueNotFoundException(
+                        queueId
+                ));
     }
 
     private void publishQueueEvent(

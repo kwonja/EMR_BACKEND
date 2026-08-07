@@ -7,12 +7,14 @@ import com.example.demo.patient.dto.PatientUpdateRequest;
 import com.example.demo.patient.exception.DuplicatePatientNumberException;
 import com.example.demo.patient.exception.PatientNotFoundException;
 import com.example.demo.patient.repository.PatientRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PatientService {
 
@@ -55,6 +57,8 @@ public class PatientService {
         for (Patient patient : patients) {
             responses.add(PatientResponse.from(patient));
         }
+
+        log.info("환자 목록 조회 완료: count={}", responses.size());
 
         return responses;
     }
